@@ -18,12 +18,21 @@
 namespace hpx { namespace detail
 {
     /// \cond NOINTERNAL
+
+    ///////////////////////////////////////////////////////////////////////////
     BOOST_FORCEINLINE bool has_async_policy(BOOST_SCOPED_ENUM(launch) policy)
     {
         return (static_cast<int>(policy) &
             static_cast<int>(launch::async_policies)) ? true : false;
     }
 
+    BOOST_FORCEINLINE bool has_sync_policy(BOOST_SCOPED_ENUM(launch) policy)
+    {
+        return (static_cast<int>(policy) &
+            static_cast<int>(launch::sync_policies)) ? true : false;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Action, typename Result>
     struct sync_local_invoke
     {
@@ -53,7 +62,7 @@ namespace hpx { namespace detail
         }
     };
 
-    ///////////////////////////////////////////////////////////////////////
+    ///////////////////////////////////////////////////////////////////////////
     template <typename Action, typename Result>
     struct sync_local_invoke_cb
     {
@@ -122,30 +131,46 @@ namespace hpx { namespace detail
                 call(id, addr, std::forward<Ts>(vs)...);
         }
 
-        lcos::packaged_action<action_type, result_type> p;
-
         bool target_is_managed = false;
+        future<result_type> f;
+
         if (policy == launch::sync || hpx::detail::has_async_policy(policy))
         {
-            if (addr) {
-                p.apply(policy, std::move(addr), id,
-                    std::forward<Ts>(vs)...);
-            }
-            else if (id.get_management_type() == naming::id_type::managed) {
-                p.apply(policy,
-                    naming::id_type(id.get_gid(), naming::id_type::unmanaged),
-                    std::forward<Ts>(vs)...);
+            lcos::packaged_action<action_type, result_type> p;
+
+            if (id.get_management_type() == naming::id_type::managed)
+            {
+                naming::id_type uid(id.get_gid(), naming::id_type::unmanaged);
+                if (addr)
+                {
+                    p.apply(policy, std::move(addr), uid,
+                        std::forward<Ts>(vs)...);
+                }
+                else
+                {
+                    p.apply(policy, uid, std::forward<Ts>(vs)...);
+                }
                 target_is_managed = true;
             }
-            else {
+            else
+            {
                 p.apply(policy, id, std::forward<Ts>(vs)...);
             }
+
+            f = p.get_future();
+        }
+        else if (policy == launch::deferred)
+        {
+            lcos::packaged_action<action_type, result_type> p;
+            f = p.get_future();
+        }
+        else
+        {
+            HPX_ASSERT(false);
         }
 
         // keep id alive, if needed - this allows to send the destination as an
         // unmanaged id
-        future<result_type> f = p.get_future();
-
         if (target_is_managed)
         {
             typedef typename traits::detail::shared_state_ptr_for<
@@ -188,17 +213,23 @@ namespace hpx { namespace detail
         bool target_is_managed = false;
         if (policy == launch::sync || hpx::detail::has_async_policy(policy))
         {
-            if (addr) {
-                p.apply_cb(policy, std::move(addr), id,
-                    std::forward<Callback>(cb), std::forward<Ts>(vs)...);
-            }
-            else if (id.get_management_type() == naming::id_type::managed) {
-                p.apply_cb(policy,
-                    naming::id_type(id.get_gid(), naming::id_type::unmanaged),
-                    std::forward<Callback>(cb), std::forward<Ts>(vs)...);
+            if (id.get_management_type() == naming::id_type::managed)
+            {
+                naming::id_type uid(id.get_gid(), naming::id_type::unmanaged);
+                if (addr)
+                {
+                    p.apply_cb(policy, std::move(addr), uid,
+                        std::forward<Callback>(cb), std::forward<Ts>(vs)...);
+                }
+                else
+                {
+                    p.apply_cb(policy, uid, std::forward<Callback>(cb),
+                        std::forward<Ts>(vs)...);
+                }
                 target_is_managed = true;
             }
-            else {
+            else
+            {
                 p.apply_cb(policy, id, std::forward<Callback>(cb),
                     std::forward<Ts>(vs)...);
             }
