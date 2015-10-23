@@ -274,7 +274,7 @@ hpx_add_config_define(HPX_HAVE_MAX_CPU_COUNT ${HPX_WITH_MAX_CPU_COUNT})
 
 if(NOT (${HPX_WITH_MAX_CPU_COUNT} LESS 65))
   set(HPX_WITH_MORE_THAN_64_THREADS_DEFAULT OFF)
-  hpx_option(HPX_WITH_MORE_THAN_64_THREADS STRING
+  hpx_option(HPX_WITH_MORE_THAN_64_THREADS BOOL
     "HPX applications will be able to run on more than 64 cores"
     ${HPX_WITH_MORE_THAN_64_THREADS_DEFAULT}
     CATEGORY "Thread Manager" ADVANCED)
@@ -412,12 +412,13 @@ foreach(_scheduler ${HPX_WITH_THREAD_SCHEDULERS_UC})
     hpx_add_config_define(HPX_HAVE_STATIC_SCHEDULER)
     set(HPX_HAVE_STATIC_SCHEDULER ON CACHE INTERNAL "")
   endif()
-  if(HPX_WITH_APEX)
+  # The throttle scheduler is not supported neither on Windows nor on Mac
+  if(HPX_WITH_APEX AND NOT WIN32 AND NOT APPLE)
     if(_scheduler STREQUAL "THROTTLE" OR _all)
       hpx_add_config_define(HPX_HAVE_THROTTLE_SCHEDULER)
       set(HPX_HAVE_THROTTLE_SCHEDULER ON CACHE INTERNAL "")
     endif()
-  endif(HPX_WITH_APEX)
+  endif()
   if(_scheduler STREQUAL "HIERARCHY" OR _all)
     hpx_add_config_define(HPX_HAVE_HIERARCHY_SCHEDULER)
     set(HPX_HAVE_HIERARCHY_SCHEDULER ON CACHE INTERNAL "")
@@ -491,9 +492,9 @@ if(HPX_WITH_GOOGLE_PERFTOOLS)
   hpx_add_config_define(HPX_HAVE_GOOGLE_PERFTOOLS)
 endif()
 hpx_option(HPX_WITH_ITTNOTIFY BOOL "Enable Amplifier (ITT) instrumentation support." OFF CATEGORY "Profiling")
-if(HPX_WITH_ITTNOTIFY)
-  hpx_add_config_define(HPX_HAVE_ITTNOTIFY)
-endif()
+#if(HPX_WITH_ITTNOTIFY)
+  #hpx_add_config_define(HPX_HAVE_ITTNOTIFY)
+#endif()
 
 ## Debugging related build options
 hpx_option(HPX_WITH_VALGRIND BOOL "Enable Valgrind instrumentation support." OFF CATEGORY "Debugging")
@@ -825,8 +826,7 @@ endif()
 
 if(MSVC)
   enable_language(ASM_MASM)
-  hpx_add_compile_flag(-Ox
-    CONFIGURATIONS Release LANGUAGES CXX C)
+  hpx_add_compile_flag(-Ox CONFIGURATIONS Release LANGUAGES CXX C)
 
   if(NOT HPX_WITH_AWAIT)
     hpx_add_compile_flag(/RTC1 CONFIGURATIONS Debug LANGUAGES CXX C)
@@ -837,18 +837,15 @@ if(MSVC)
 
   # VS2012 and above has a special flag for improving the debug experience by
   # adding more symbol information to the build (-d2Zi)
-  hpx_add_compile_flag(-d2Zi+
-    CONFIGURATIONS RelWithDebInfo)
+  hpx_add_compile_flag(-d2Zi+ CONFIGURATIONS RelWithDebInfo)
 
   # VS2013 and above know how to do link time constant data segment folding
   # VS2013 update 2 and above know how to remove debug information for
   #     non-referenced functions and data (-Zc:inline)
   if(MSVC12 OR MSVC14)
     hpx_add_compile_flag(-Zc:inline)
-    hpx_add_compile_flag(-Gw
-      CONFIGURATIONS Release RelWithDebInfo MinSizeRelease)
-    hpx_add_compile_flag(-Zo
-      CONFIGURATIONS RelWithDebInfo)
+    hpx_add_compile_flag(-Gw CONFIGURATIONS Release RelWithDebInfo MinSizeRelease)
+    hpx_add_compile_flag(-Zo CONFIGURATIONS RelWithDebInfo)
   endif()
 
   # Exceptions
@@ -856,6 +853,9 @@ if(MSVC)
   if(MSVC14)
     # assume conforming (throwing) operator new implementations
     hpx_add_compile_flag(-Zc:throwingNew)
+    # enable faster linking (requires VS2015 Update1)
+    hpx_remove_link_flag(/debug CONFIGURATIONS Debug)
+    hpx_add_link_flag(/debug:fastlink CONFIGURATIONS Debug)
   endif()
 
   # Runtime type information
@@ -1118,7 +1118,7 @@ if(HPX_WITH_APEX)
   git_external(apex
     https://github.com/khuck/xpress-apex.git
     master
-    NO_UPDATE VERBOSE)
+    VERBOSE)
 
   LIST(APPEND CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/apex/cmake/Modules")
   add_subdirectory(apex/src/apex)
@@ -1130,7 +1130,6 @@ if(HPX_WITH_APEX)
   endif()
 
   include_directories(${APEX_SOURCE_DIR})
-  hpx_add_config_define(HPX_HAVE_APEX 1)
   set(HPX_ADDITIONAL_RUNTIME_DEPENDENCIES
       ${HPX_ADDITIONAL_RUNTIME_DEPENDENCIES} apex_lib)
   if(APEX_WITH_MSR)
