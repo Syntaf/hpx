@@ -471,7 +471,7 @@ response addressing_service::service(
 
     HPX_THROWS_IF(ec, bad_action_code
         , "addressing_service::service"
-        , "invalid action code encountered in request")
+        , "invalid action code encountered in request");
     return response();
 } // }}}
 

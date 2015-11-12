@@ -434,16 +434,3 @@ namespace hpx { namespace detail
         return e.exception_;
     }
 }}
-
-///////////////////////////////////////////////////////////////////////////////
-namespace hpx
-{
-    /// \brief throw an hpx::exception initialized from the given arguments
-    HPX_EXPORT void throw_exception(error e, std::string const& msg,
-        std::string const& func, std::string const& file, long line)
-    {
-        boost::filesystem::path p__(hpx::util::create_path(file));
-        boost::rethrow_exception(detail::get_exception(hpx::exception(e, msg),
-            func, p__.string(), line));
-    }
-}
