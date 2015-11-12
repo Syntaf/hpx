@@ -11,6 +11,7 @@
 #include <vector>
 
 #include <hpx/hpx.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/lcos/base_lco.hpp>
 #include <hpx/runtime/actions/continuation.hpp>
 #include <hpx/runtime/agas/response.hpp>

@@ -10,7 +10,7 @@
 
 #if defined(HPX_HAVE_SECURITY)
 
-#include <hpx/exception.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/runtime/naming/name.hpp>
 
 #include <vector>

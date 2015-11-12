@@ -7,6 +7,10 @@
 #ifndef HPX_DLL_WINDOWS_HPP_HK_2005_11_06
 #define HPX_DLL_WINDOWS_HPP_HK_2005_11_06
 
+#include <hpx/config.hpp>
+#include <hpx/throw_exception.hpp>
+#include <hpx/util/plugin/config.hpp>
+
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -19,9 +23,6 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/throw_exception.hpp>
 #include <utility>
-
-#include <hpx/util/plugin/config.hpp>
-#include <hpx/exception.hpp>
 
 #include <windows.h>
 #include <Shlwapi.h>

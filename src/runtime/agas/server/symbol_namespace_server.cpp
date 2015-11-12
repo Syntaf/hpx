@@ -8,6 +8,7 @@
 
 #include <hpx/hpx_fwd.hpp>
 #include <hpx/apply.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/runtime/naming/resolver_client.hpp>
 #include <hpx/runtime/actions/continuation.hpp>
 #include <hpx/runtime/agas/interface.hpp>

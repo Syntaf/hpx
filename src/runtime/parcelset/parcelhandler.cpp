@@ -8,7 +8,7 @@
 
 #include <hpx/hpx_fwd.hpp>
 #include <hpx/state.hpp>
-#include <hpx/exception.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/config/asio.hpp>
 #include <hpx/util/io_service_pool.hpp>
 #include <hpx/util/safe_lexical_cast.hpp>

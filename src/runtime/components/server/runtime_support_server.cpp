@@ -7,7 +7,7 @@
 #include <hpx/hpx_fwd.hpp>
 #include <hpx/config.hpp>
 #include <hpx/runtime.hpp>
-#include <hpx/exception.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/apply.hpp>
 #include <hpx/config/defaults.hpp>
 #include <hpx/util/ini.hpp>

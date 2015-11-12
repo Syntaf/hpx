@@ -10,6 +10,7 @@
 #define HPX_28443929_CB68_43ED_B134_F60602A344DD
 
 #include <hpx/hpx_fwd.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/include/async.hpp>
 #include <hpx/runtime/agas/server/symbol_namespace.hpp>
 #include <hpx/util/jenkins_hash.hpp>

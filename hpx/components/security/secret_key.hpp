@@ -10,7 +10,7 @@
 
 #if defined(HPX_HAVE_SECURITY)
 
-#include <hpx/exception.hpp>
+#include <hpx/throw_exception.hpp>
 
 #include <boost/array.hpp>
 #include <boost/io/ios_state.hpp>

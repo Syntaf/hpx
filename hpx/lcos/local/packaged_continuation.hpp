@@ -8,6 +8,7 @@
 #define HPX_LCOS_LOCAL_CONTINUATION_APR_17_2012_0150PM
 
 #include <hpx/config.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/traits/promise_remote_result.hpp>
 #include <hpx/traits/is_future.hpp>
 #include <hpx/traits/is_executor.hpp>

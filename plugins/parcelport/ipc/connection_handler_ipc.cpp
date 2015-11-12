@@ -9,6 +9,7 @@
 #if defined(HPX_HAVE_PARCELPORT_IPC)
 
 #include <hpx/exception_list.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/plugins/parcelport/ipc/connection_handler.hpp>
 #include <hpx/plugins/parcelport/ipc/acceptor.hpp>
 #include <hpx/plugins/parcelport/ipc/sender.hpp>

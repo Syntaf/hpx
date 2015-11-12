@@ -223,6 +223,7 @@ namespace hpx
 #else // DOXYGEN
 
 #include <hpx/hpx_fwd.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/traits/acquire_future.hpp>
 #include <hpx/traits/acquire_shared_state.hpp>
 #include <hpx/traits/future_access.hpp>

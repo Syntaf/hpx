@@ -10,6 +10,7 @@
 #include <hpx/hpx_fwd.hpp>
 
 #include <hpx/exception_list.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/runtime/parcelset/locality.hpp>
 #include <hpx/plugins/parcelport/tcp/connection_handler.hpp>
 #include <hpx/plugins/parcelport/tcp/sender.hpp>

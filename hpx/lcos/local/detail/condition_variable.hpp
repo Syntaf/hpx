@@ -8,6 +8,7 @@
 #define HPX_LCOS_LOCAL_DETAIL_CONDITION_VARIABLE_DEC_4_2013_0130PM
 
 #include <hpx/config.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/lcos/local/no_mutex.hpp>
 #include <hpx/util/assert_owns_lock.hpp>
 #include <hpx/util/unlock_guard.hpp>

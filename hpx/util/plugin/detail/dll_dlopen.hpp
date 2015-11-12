@@ -7,6 +7,10 @@
 #ifndef HPX_DLL_DLOPEN_HPP_VP_2004_08_24
 #define HPX_DLL_DLOPEN_HPP_VP_2004_08_24
 
+#include <hpx/config.hpp>
+#include <hpx/throw_exception.hpp>
+#include <hpx/util/plugin/config.hpp>
+
 #include <string>
 #include <stdexcept>
 #include <iostream>
@@ -22,9 +26,6 @@
 #include <boost/filesystem/convenience.hpp>
 #include <boost/throw_exception.hpp>
 #include <utility>
-
-#include <hpx/exception.hpp>
-#include <hpx/util/plugin/config.hpp>
 
 #if !defined(__ANDROID__) && !defined(ANDROID) && !defined(__APPLE__)
 #include <link.h>

@@ -15,11 +15,11 @@
 #include <boost/program_options.hpp>
 
 #include <hpx/hpx.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/util/bind.hpp>
 #include <hpx/util/thread_mapper.hpp>
 #include <hpx/components/papi/server/papi.hpp>
 #include <hpx/components/papi/util/papi.hpp>
-#include <hpx/exception.hpp>
 
 ///////////////////////////////////////////////////////////////////////////////
 // Add factory registration functionality

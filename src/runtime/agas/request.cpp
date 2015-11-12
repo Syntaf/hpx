@@ -7,6 +7,7 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <hpx/hpx_fwd.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/util/tuple.hpp>
 #include <hpx/runtime/agas/request.hpp>
 #include <hpx/runtime/actions/action_support.hpp>

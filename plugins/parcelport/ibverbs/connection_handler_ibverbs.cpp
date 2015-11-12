@@ -9,6 +9,7 @@
 #if defined(HPX_HAVE_PARCELPORT_IBVERBS)
 
 #include <hpx/exception_list.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/plugins/parcelport/ibverbs/connection_handler.hpp>
 #include <hpx/plugins/parcelport/ibverbs/acceptor.hpp>
 #include <hpx/plugins/parcelport/ibverbs/sender.hpp>

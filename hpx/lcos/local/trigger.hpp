@@ -7,6 +7,7 @@
 #define HPX_LCOS_LOCAL_TRIGGER_SEP_09_2012_1229PM
 
 #include <hpx/hpx_fwd.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/lcos/local/spinlock.hpp>
 #include <hpx/lcos/local/conditional_trigger.hpp>
 #include <hpx/lcos/local/no_mutex.hpp>

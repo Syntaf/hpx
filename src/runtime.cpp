@@ -7,7 +7,7 @@
 #include <hpx/hpx_fwd.hpp>
 
 #include <hpx/state.hpp>
-#include <hpx/exception.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/version.hpp>
 #include <hpx/include/runtime.hpp>
 #include <hpx/runtime/agas/big_boot_barrier.hpp>

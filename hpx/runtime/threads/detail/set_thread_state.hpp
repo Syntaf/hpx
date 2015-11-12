@@ -8,7 +8,7 @@
 
 #include <hpx/config/asio.hpp>
 #include <hpx/hpx_fwd.hpp>
-#include <hpx/exception.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/runtime/threads/thread_data.hpp>
 #include <hpx/runtime/threads/thread_helpers.hpp>
 #include <hpx/runtime/threads/detail/create_work.hpp>

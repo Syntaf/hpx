@@ -8,6 +8,7 @@
 
 #if defined(HPX_HAVE_SODIUM)
 
+#include <hpx/throw_exception.hpp>
 #include <hpx/util/security/root_certificate_authority.hpp>
 
 namespace hpx { namespace util { namespace security

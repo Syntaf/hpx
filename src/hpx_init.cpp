@@ -9,6 +9,7 @@
 #include <hpx/config.hpp>
 #include <hpx/hpx_init.hpp>
 #include <hpx/hpx_start.hpp>
+#include <hpx/throw_exception.hpp>
 #include <hpx/util/command_line_handling.hpp>
 #include <hpx/util/bind_action.hpp>
 
