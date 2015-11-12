@@ -10,8 +10,9 @@
 #define HPX_EXCEPTION_MAR_24_2008_0929AM
 
 #include <hpx/config.hpp>
-#include <hpx/exception_fwd.hpp>
 #include <hpx/error.hpp>
+#include <hpx/error_category.hpp>
+#include <hpx/exception_fwd.hpp>
 #include <hpx/util/assert.hpp>
 #include <hpx/util/logging.hpp>
 #include <hpx/util/filesystem_compatibility.hpp>
@@ -30,53 +31,12 @@
 
 #include <hpx/config/warnings_prefix.hpp>
 
-#if !defined(BOOST_SYSTEM_NOEXCEPT)
-#define BOOST_SYSTEM_NOEXCEPT BOOST_NOEXCEPT
-#endif
-
 ///////////////////////////////////////////////////////////////////////////////
 namespace hpx
 {
     /// \cond NODETAIL
     namespace detail
     {
-        class hpx_category : public boost::system::error_category
-        {
-        public:
-            const char* name() const BOOST_SYSTEM_NOEXCEPT
-            {
-                return "HPX";
-            }
-
-            std::string message(int value) const
-            {
-                if (value >= success && value < last_error)
-                    return std::string("HPX(") + error_names[value] + ")"; //-V108
-
-                return "HPX(unknown_error)";
-            }
-        };
-
-        struct lightweight_hpx_category : hpx_category {};
-
-        // this doesn't add any text to the exception what() message
-        class hpx_category_rethrow : public boost::system::error_category
-        {
-        public:
-            const char* name() const BOOST_SYSTEM_NOEXCEPT
-            {
-                return "";
-            }
-
-            std::string message(int) const BOOST_NOEXCEPT
-            {
-                return "";
-            }
-        };
-
-        struct lightweight_hpx_category_rethrow : hpx_category_rethrow {};
-
-        ///////////////////////////////////////////////////////////////////////
         HPX_EXPORT boost::exception_ptr access_exception(error_code const&);
 
         ///////////////////////////////////////////////////////////////////////
@@ -92,59 +52,6 @@ namespace hpx
         };
     } // namespace detail
     /// \endcond
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// \brief Returns generic HPX error category used for new errors.
-    inline boost::system::error_category const& get_hpx_category()
-    {
-        static detail::hpx_category instance;
-        return instance;
-    }
-
-    /// \brief Returns generic HPX error category used for errors re-thrown
-    ///        after the exception has been de-serialized.
-    inline boost::system::error_category const& get_hpx_rethrow_category()
-    {
-        static detail::hpx_category_rethrow instance;
-        return instance;
-    }
-
-    ///////////////////////////////////////////////////////////////////////////
-    /// \brief Encode error category for new error_code.
-    enum throwmode
-    {
-        plain = 0,
-        rethrow = 1,
-        lightweight = 0x80, // do not generate an exception for this error_code
-        /// \cond NODETAIL
-        lightweight_rethrow = lightweight | rethrow
-        /// \endcond
-    };
-
-    /// \cond NOINTERNAL
-    inline boost::system::error_category const&
-    get_lightweight_hpx_category()
-    {
-        static detail::lightweight_hpx_category instance;
-        return instance;
-    }
-
-    inline boost::system::error_category const& get_hpx_category(throwmode mode)
-    {
-        switch(mode) {
-        case rethrow:
-            return get_hpx_rethrow_category();
-
-        case lightweight:
-        case lightweight_rethrow:
-            return get_lightweight_hpx_category();
-
-        case plain:
-        default:
-            break;
-        }
-        return get_hpx_category();
-    }
 
     inline boost::system::error_code
     make_system_error_code(error e, throwmode mode = plain)
