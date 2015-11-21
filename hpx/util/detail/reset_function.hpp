@@ -6,8 +6,8 @@
 #if !defined(HPX_UTIL_DETAIL_RESET_FUNCTION_OCT_22_2013_0854AM)
 #define HPX_UTIL_DETAIL_RESET_FUNCTION_OCT_22_2013_0854AM
 
-#include <hpx/util/detail/function_template.hpp>
-#include <hpx/util/detail/unique_function_template.hpp>
+#include <hpx/util/function.hpp>
+#include <hpx/util/unique_function.hpp>
 
 namespace hpx { namespace util { namespace detail
 {
