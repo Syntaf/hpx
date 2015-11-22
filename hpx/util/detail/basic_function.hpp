@@ -27,6 +27,9 @@
 
 namespace hpx { namespace util { namespace detail
 {
+    template <typename VTablePtr, typename Sig>
+    class function_base;
+
     ///////////////////////////////////////////////////////////////////////////
     template <typename F>
     static bool is_empty_function(F const&, std::false_type) BOOST_NOEXCEPT
@@ -51,15 +54,36 @@ namespace hpx { namespace util { namespace detail
     }
 
     ///////////////////////////////////////////////////////////////////////////
-    template <typename VTablePtr, typename Sig>
-    class function_base;
+    template <typename VTablePtr, typename Sig, typename Function>
+    struct is_compatible_function
+    {
+        typedef char(&no_type)[1];
+        typedef char(&yes_type)[2];
 
+        static no_type call(...);
+
+        template <typename OtherVTablePtr>
+        static typename std::conditional<
+            std::is_convertible<OtherVTablePtr, VTablePtr>::value,
+            yes_type, no_type
+        >::type call(function_base<OtherVTablePtr, Sig>&&);
+
+        static bool const value =
+            sizeof(call(std::declval<Function>())) == sizeof(yes_type);
+
+        typedef std::integral_constant<bool, value> type;
+    };
+
+    ///////////////////////////////////////////////////////////////////////////
     template <typename VTablePtr, typename R, typename ...Ts>
     class function_base<VTablePtr, R(Ts...)>
     {
         HPX_MOVABLE_BUT_NOT_COPYABLE(function_base);
 
         static VTablePtr const empty_table;
+
+        template <typename OtherVTablePtr, typename OtherSig>
+        friend class function_base;
 
     public:
         function_base() BOOST_NOEXCEPT
@@ -93,7 +117,9 @@ namespace hpx { namespace util { namespace detail
         }
 
         template <typename F>
-        void assign(F&& f)
+        typename std::enable_if<
+            !is_compatible_function<VTablePtr, R(Ts...), F>::value
+        >::type assign(F&& f)
         {
             if (!is_empty_function(f))
             {
@@ -112,6 +138,22 @@ namespace hpx { namespace util { namespace detail
                 }
             } else {
                 reset();
+            }
+        }
+
+        template <typename F>
+        typename std::enable_if<
+            is_compatible_function<VTablePtr, R(Ts...), F>::value
+        >::type assign(F&& other) // rvalues-only
+        {
+            reset();
+            if (!other.empty())
+            {
+                vptr = other.vptr;
+                object = other.object;
+
+                other.vptr = &other.empty_table;
+                vtable::default_construct<empty_function<R(Ts...)> >(&other.object);
             }
         }
 
@@ -164,9 +206,7 @@ namespace hpx { namespace util { namespace detail
             );
 
             typedef typename std::decay<T>::type target_type;
-
-            VTablePtr const* f_vptr = get_table_ptr<target_type>();
-            if (vptr != f_vptr || empty())
+            if (vptr->get_type() != typeid(target_type))
                 return 0;
 
             return &vtable::get<target_type>(&object);
@@ -181,9 +221,7 @@ namespace hpx { namespace util { namespace detail
             );
 
             typedef typename std::decay<T>::type target_type;
-
-            VTablePtr const* f_vptr = get_table_ptr<target_type>();
-            if (vptr != f_vptr || empty())
+            if (vptr->get_type() != typeid(target_type))
                 return 0;
 
             return &vtable::get<target_type>(&object);
