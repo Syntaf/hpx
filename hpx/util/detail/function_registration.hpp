@@ -9,7 +9,7 @@
 #define HPX_UTIL_DETAIL_FUNCTION_REGISTRATION_HPP
 
 #include <hpx/config.hpp>
-#include <hpx/util/detail/get_table.hpp>
+#include <hpx/util/detail/vtable/vtable.hpp>
 #include <hpx/runtime/serialization/detail/polymorphic_intrusive_factory.hpp>
 #include <hpx/traits/needs_automatic_registration.hpp>
 #include <hpx/util/demangle_helper.hpp>
@@ -62,7 +62,7 @@ namespace hpx { namespace util { namespace detail
     {
         virtual void const* get_table_ptr() const
         {
-            return detail::get_table<VTable, T>();
+            return detail::get_vtable<VTable, T>();
         }
     };
 

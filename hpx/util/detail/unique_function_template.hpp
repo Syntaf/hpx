@@ -11,46 +11,11 @@
 #include <hpx/config.hpp>
 #include <hpx/traits/is_callable.hpp>
 #include <hpx/util/detail/basic_function.hpp>
-#include <hpx/util/detail/vtable/callable_vtable.hpp>
+#include <hpx/util/detail/vtable/unique_function_vtable.hpp>
 #include <hpx/util/detail/vtable/vtable.hpp>
 
 #include <type_traits>
 #include <utility>
-
-namespace hpx { namespace util { namespace detail
-{
-    ///////////////////////////////////////////////////////////////////////
-    template <typename Sig>
-    struct unique_function_vtable_ptr
-    {
-        typename callable_vtable<Sig>::invoke_t invoke;
-        vtable::get_type_t get_type;
-        vtable::destruct_t destruct;
-        vtable::delete_t delete_;
-        bool empty;
-
-        template <typename T>
-        unique_function_vtable_ptr(construct_vtable<T>) BOOST_NOEXCEPT
-          : invoke(&callable_vtable<Sig>::template invoke<T>)
-          , get_type(&vtable::template get_type<T>)
-          , destruct(&vtable::template destruct<T>)
-          , delete_(&vtable::template delete_<T>)
-          , empty(std::is_same<T, empty_function<Sig> >::value)
-        {}
-
-        template <typename T, typename Arg>
-        BOOST_FORCEINLINE static void construct(void** v, Arg&& arg)
-        {
-            vtable::construct<T>(v, std::forward<Arg>(arg));
-        }
-
-        template <typename T, typename Arg>
-        BOOST_FORCEINLINE static void reconstruct(void** v, Arg&& arg)
-        {
-            vtable::reconstruct<T>(v, std::forward<Arg>(arg));
-        }
-    };
-}}}
 
 namespace hpx { namespace util
 {
@@ -61,11 +26,11 @@ namespace hpx { namespace util
     template <typename R, typename ...Ts, bool Serializable>
     class unique_function<R(Ts...), Serializable>
       : public detail::basic_function<
-            detail::unique_function_vtable_ptr<R(Ts...)>
+            detail::unique_function_vtable<R(Ts...)>
           , R(Ts...), Serializable
         >
     {
-        typedef detail::unique_function_vtable_ptr<R(Ts...)> vtable_ptr;
+        typedef detail::unique_function_vtable<R(Ts...)> vtable_ptr;
         typedef detail::basic_function<vtable_ptr, R(Ts...), Serializable> base_type;
 
         HPX_MOVABLE_BUT_NOT_COPYABLE(unique_function);

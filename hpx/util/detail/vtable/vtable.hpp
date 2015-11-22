@@ -1,6 +1,6 @@
 //  Copyright (c) 2011 Thomas Heller
 //  Copyright (c) 2013 Hartmut Kaiser
-//  Copyright (c) 2014 Agustin Berge
+//  Copyright (c) 2014-2015 Agustin Berge
 //
 //  Distributed under the Boost Software License, Version 1.0. (See accompanying
 //  file LICENSE_1_0.txt or copy at http://www.boost.org/LICENSE_1_0.txt)
@@ -8,23 +8,29 @@
 #ifndef HPX_UTIL_DETAIL_VTABLE_VTABLE_HPP
 #define HPX_UTIL_DETAIL_VTABLE_VTABLE_HPP
 
-#include <hpx/config/forceinline.hpp>
+#include <hpx/config.hpp>
 
 #include <memory>
+#include <type_traits>
 #include <typeinfo>
 #include <utility>
 
 namespace hpx { namespace util { namespace detail
 {
+    ///////////////////////////////////////////////////////////////////////////
+    template <typename T>
+    struct construct_vtable {};
+
+    template <typename VTable, typename T>
+    static VTable const* get_vtable() BOOST_NOEXCEPT
+    {
+        static VTable const vtable = construct_vtable<T>();
+        return &vtable;
+    }
+
+    ///////////////////////////////////////////////////////////////////////////
     struct vtable
     {
-        template <typename T>
-        BOOST_FORCEINLINE static std::type_info const& get_type()
-        {
-            return typeid(T);
-        }
-        typedef std::type_info const& (*get_type_t)();
-
         template <typename T>
         BOOST_FORCEINLINE static T& get(void** v)
         {
@@ -72,32 +78,43 @@ namespace hpx { namespace util { namespace detail
         template <typename T, typename Arg>
         BOOST_FORCEINLINE static void reconstruct(void** v, Arg&& arg)
         {
-            destruct<T>(v);
+            _destruct<T>(v);
             construct<T, Arg>(v, std::forward<Arg>(arg));
         }
 
         template <typename T>
-        BOOST_FORCEINLINE static void destruct(void** v)
+        BOOST_FORCEINLINE static std::type_info const& _get_type()
+        {
+            return typeid(T);
+        }
+        std::type_info const& (*get_type)();
+
+        template <typename T>
+        BOOST_FORCEINLINE static void _destruct(void** v)
         {
             get<T>(v).~T();
         }
-        typedef void (*destruct_t)(void**);
+        void (*destruct)(void**);
 
         template <typename T>
-        BOOST_FORCEINLINE static void delete_(void** v)
+        BOOST_FORCEINLINE static void _delete(void** v)
         {
             if (sizeof(T) <= sizeof(void*))
             {
-                destruct<T>(v);
+                _destruct<T>(v);
             } else {
                 delete &get<T>(v);
             }
         }
-        typedef void (*delete_t)(void**);
-    };
+        void (*delete_)(void**);
 
-    template <typename T>
-    struct construct_vtable {};
+        template <typename T>
+        BOOST_CONSTEXPR vtable(construct_vtable<T>) BOOST_NOEXCEPT
+          : get_type(&vtable::template _get_type<T>)
+          , destruct(&vtable::template _destruct<T>)
+          , delete_(&vtable::template _delete<T>)
+        {}
+    };
 }}}
 
 #endif
