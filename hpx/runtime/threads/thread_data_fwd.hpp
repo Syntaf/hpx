@@ -10,9 +10,13 @@
 
 #include <hpx/config.hpp>
 #include <hpx/runtime/threads/thread_enums.hpp>
+#include <hpx/traits/is_callable.hpp>
 #include <hpx/util/unique_function.hpp>
 #include <hpx/util/coroutine/detail/default_context_impl.hpp>
 #include <hpx/util/coroutine/detail/coroutine_impl.hpp>
+
+#include <type_traits>
+#include <utility>
 
 namespace hpx { namespace util { namespace coroutines
 {
@@ -46,8 +50,58 @@ namespace hpx { namespace threads
     class HPX_EXPORT threadmanager_impl;
 
     typedef thread_state_enum thread_function_sig(thread_state_ex_enum);
-    typedef util::unique_function_nonser<thread_function_sig>
-        thread_function_type;
+
+    // FIXME: Forward declare only once headers get their #includes in order
+    class thread_function
+      : public util::unique_function<
+            thread_state_enum(thread_state_ex_enum),
+            false
+        >
+    {
+        typedef unique_function<
+            thread_state_enum(thread_state_ex_enum),
+            false
+        > base_type;
+
+        HPX_MOVABLE_BUT_NOT_COPYABLE(thread_function);
+
+    public:
+        thread_function() BOOST_NOEXCEPT
+          : base_type()
+        {}
+
+        thread_function(thread_function&& other) BOOST_NOEXCEPT
+          : base_type(static_cast<base_type&&>(other))
+        {}
+
+        template <typename F, typename FD = typename std::decay<F>::type,
+            typename Enable = typename std::enable_if<
+                !std::is_same<FD, thread_function>::value
+             && traits::is_callable<FD&(thread_state_ex_enum), thread_state_enum>::value
+            >::type>
+        thread_function(F&& f)
+          : base_type(std::forward<F>(f))
+        {}
+
+        thread_function& operator=(thread_function&& other) BOOST_NOEXCEPT
+        {
+            base_type::operator=(static_cast<base_type&&>(other));
+            return *this;
+        }
+
+        template <typename F, typename FD = typename std::decay<F>::type,
+            typename Enable = typename std::enable_if<
+                !std::is_same<FD, thread_function>::value
+             && traits::is_callable<FD&(thread_state_ex_enum), thread_state_enum>::value
+            >::type>
+        thread_function& operator=(F&& f)
+        {
+            base_type::operator=(std::forward<F>(f));
+            return *this;
+        }
+    };
+
+    typedef thread_function thread_function_type;
 
     class HPX_EXPORT executor;
 
